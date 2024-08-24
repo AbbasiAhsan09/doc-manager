@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MySqlDBModule } from './database/mysql/mysql-db.module';
 import configuration from '../config/configuration';
 import { UserModule } from './resources/user-module/user.module';
+import { ClinicModule } from './resources/clinic-module/clinic.module';
 
 const env = `${process.env.NODE_ENV ? `./config/env/.${process.env.NODE_ENV}.env` : './config/env/.env' }`
 
@@ -16,7 +17,8 @@ const env = `${process.env.NODE_ENV ? `./config/env/.${process.env.NODE_ENV}.env
       isGlobal : true,
   }),
   MySqlDBModule,
-  UserModule
+  UserModule,
+  ClinicModule
 ],
   controllers: [AppController],
   providers: [AppService],

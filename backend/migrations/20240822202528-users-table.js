@@ -1,6 +1,6 @@
 'use strict';
 
-const EnumUserTypes = [
+const  EnumUserTypes = [
   'admin',
   'doctor',
   'clinic',
@@ -42,6 +42,11 @@ module.exports = {
 
       },
       email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+
+      },
+      password: {
         type: Sequelize.STRING,
         allowNull: false,
 

@@ -1,5 +1,12 @@
 'use strict';
 
+const  EnumUserTypes = [
+  'admin',
+  'doctor',
+  'clinic',
+  'pharmacy',
+  'pharma'
+]
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -18,6 +25,10 @@ module.exports = {
       },
       name : {
         type : Sequelize.STRING,
+        allowNull : false,
+      },
+      type : {
+        type : Sequelize.ENUM(...EnumUserTypes),
         allowNull : false,
       },
       key : {
