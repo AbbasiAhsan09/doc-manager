@@ -1,15 +1,73 @@
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, HttpStatus } from "@nestjs/common";
 import { User } from "../entities/user.entity";
+import { CreateUserDto } from "../dto/create-user.dto";
+import { RoleService } from "../roles-module/services/role.service";
+import { GeneralResponseDto } from "src/shared/dto/general-response.dto";
+import { Role } from "../roles-module/entities/role.entity";
+import * as bcrypt from 'bcrypt'
+import { Op } from "sequelize";
 
 @Injectable()
-
 export class UserService {
     constructor(
-        @Inject(User.name) private readonly userModel : User
+        @Inject(User.name) private readonly userModel : typeof User,
+        private readonly roleSErvice : RoleService
     ){}
 
-    async create(){
+    async create(body : CreateUserDto){
         try {
+
+            const { roleId, userType, password, email, username } = body;
+            const role = await this.roleSErvice.findOne(+roleId);
+
+            // Check if role found or not
+            if(!role || (role instanceof GeneralResponseDto && role.status)) return role;
+            
+            // Check role type and usertype is same
+            if(role instanceof Role && role?.type !== userType) return new GeneralResponseDto(HttpStatus.BAD_REQUEST, String(`Invalid role type for the user.`));
+
+            // Check if user already exist
+            const checkExistingUser = await this.findOneByUsernameOrEmail({email,username});
+            if(checkExistingUser) return new GeneralResponseDto(HttpStatus.CONFLICT, String(`User with this email or username already exist.`));
+
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            return await this.userModel.create({...body, password : hashedPassword})
+            
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async findOneByUsernameOrEmail({email , username} : {email ?: string, username? : string}){
+        try {
+            
+            const check = await this.userModel.findOne({where : {
+                [Op.or] : {
+                    email,
+                    username
+                }
+            }})
+
+            if(!check) return false;
+
+            return true;
+
+        } catch (err) {
+            throw new Error(err)
+        }
+    }
+
+    async hardDelete(id : number){
+        try {
+
+            const user = await this.userModel.findOne({where : { id : +id}});
+
+            if(!user) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`User not found for id : ${+id}`));
+
+            return await user.destroy({force : true});
             
         } catch (err) {
             throw new Error(err);

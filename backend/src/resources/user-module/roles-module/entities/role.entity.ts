@@ -1,4 +1,5 @@
 import { AutoIncrement, Column, CreatedAt, DataType, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
+import { EUserTypes } from "src/shared/@enum/user-type.enum";
 
 @Table({
     tableName  :'roles',
@@ -24,6 +25,12 @@ export class Role extends Model<Role> {
         unique  : true
     })
     key : string;
+
+    @Column({
+        type : DataType.ENUM(EUserTypes.ADMIN, EUserTypes.CLINIC, EUserTypes.PHARMA, EUserTypes.DOCTOR, EUserTypes.PHARMACY),
+        allowNull : false,
+    })
+    type : EUserTypes;
 
     @CreatedAt
     @Column({

@@ -75,7 +75,7 @@ module.exports = {
       },
       image : {
         type : Sequelize.STRING,
-        allowNull : false,
+        allowNull : true,
       },
       roleId :  {
         type : Sequelize.INTEGER,
@@ -94,7 +94,11 @@ module.exports = {
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
+      },
+      deletedAt : {
+        type : Sequelize.DATE,
+        allowNull : true,
       }
     });
   },

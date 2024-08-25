@@ -4,8 +4,9 @@ import { EUserTypes } from "src/shared/@enum/user-type.enum";
 import { Role } from "../roles-module/entities/role.entity";
 
 @Table({
-    tableName  :'user',
+    tableName  :'users',
     timestamps : true,
+    paranoid : true
 })
 export class User extends Model<User> {
     
@@ -33,6 +34,12 @@ export class User extends Model<User> {
         allowNull : false        
     })
     email : string;
+
+    @Column({
+        type : DataType.STRING,
+        allowNull : false        
+    })
+    password : string;
 
     @Column({
         type : DataType.STRING,
