@@ -22,7 +22,7 @@ export class AuthService {
             const {emailOrUsername,password} = body;
 
             const user = await this.userService.findOneByUsernameOrEmail({email : emailOrUsername, username : emailOrUsername});
-
+            
             if(!user) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Username or password is invalid.`));
 
             const checkPassword = await bcrypt.compare(password, user.password);
@@ -40,7 +40,7 @@ export class AuthService {
 
     async signIn(user : User){
         try {
-            return  this.jwtService.sign({id : user.id, email : user.email},{
+            return  this.jwtService.sign({...user},{
             expiresIn : this.configService.get("jwt.expiresIn")
             })
         } catch (err) {

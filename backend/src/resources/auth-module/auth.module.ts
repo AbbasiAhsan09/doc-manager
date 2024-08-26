@@ -4,6 +4,10 @@ import { AuthController } from "./controller/auth.controller";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { UserModule } from "../user-module/user.module";
+import { AccessTokenStrategy } from "./stratagies/access-token.strategy";
+import { RefreshTokenStrategy } from "./stratagies/refresh-token.strategy";
+import { APP_GUARD } from "@nestjs/core";
+import { ProtectedRouteGuard } from "./guards/protected-route.guard";
 
 @Module({
     imports : [
@@ -19,7 +23,11 @@ import { UserModule } from "../user-module/user.module";
         UserModule
     ],
     controllers : [AuthController],
-    providers : [AuthService],
+    providers : [
+        AuthService, 
+        AccessTokenStrategy,
+        ProtectedRouteGuard
+    ],
     exports : [AuthService]
 })
 

@@ -7,6 +7,7 @@ import { JwtPayload } from '../dto/jwt-payload.dto';
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
+    console.log("secret", process.env.JWT_ACCESS_SECRET);
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.JWT_ACCESS_SECRET,
@@ -14,6 +15,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   validate(payload: JwtPayload) {
+    
     return payload;
   }
 }

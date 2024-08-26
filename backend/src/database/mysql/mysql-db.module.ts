@@ -14,7 +14,8 @@ import { mysqlDBModels } from "./mysql-db.models";
                     username : configService.get("database.mysql.username"),
                     port : configService.get("database.mysql.port"),
                     host : configService.get("database.mysql.host"),
-                    models : mysqlDBModels
+                    models : mysqlDBModels,
+                    logging : false,
                 }
                )
             ,

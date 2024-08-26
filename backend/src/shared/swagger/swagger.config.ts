@@ -5,6 +5,7 @@ export function SetupSwagger(app : INestApplication){
     const config = new DocumentBuilder()
     .setTitle('DocManager')
     .setDescription('DocManager API ')
+    .addBearerAuth()
     // .setVersion('1.0')
     // .addTag('cats')
     .build();
