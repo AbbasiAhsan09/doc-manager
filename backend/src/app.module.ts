@@ -7,6 +7,7 @@ import configuration from '../config/configuration';
 import { UserModule } from './resources/user-module/user.module';
 import { ClinicModule } from './resources/clinic-module/clinic.module';
 import { AuthModule } from './resources/auth-module/auth.module';
+import { ServiceModule } from './resources/services-module/services.module';
 
 const env = `${process.env.NODE_ENV ? `./config/env/.${process.env.NODE_ENV}.env` : './config/env/.env' }`
 
@@ -20,7 +21,8 @@ const env = `${process.env.NODE_ENV ? `./config/env/.${process.env.NODE_ENV}.env
   MySqlDBModule,
   UserModule,
   AuthModule,
-  ClinicModule
+  ClinicModule,
+  ServiceModule
 ],
   controllers: [AppController],
   providers: [AppService],
