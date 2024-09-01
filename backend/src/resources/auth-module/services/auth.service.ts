@@ -40,7 +40,7 @@ export class AuthService {
 
     async signIn(user : User){
         try {
-            return  this.jwtService.sign({...user},{
+            return  this.jwtService.sign({id : user.id, email  : user.email, userType : user.userType, username : user.username},{
             expiresIn : this.configService.get("jwt.expiresIn")
             })
         } catch (err) {

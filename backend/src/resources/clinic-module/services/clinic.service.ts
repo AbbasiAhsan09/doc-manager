@@ -42,6 +42,9 @@ export class ClinicService {
                     return new GeneralResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, String(`Oops! Something went wrong while creating your account please try again later or contact support.`))
                 }
 
+                // Associate Clinic
+                await this.userService.createUserClinicAssociation(user.id, clinic.id);
+
                 return new GeneralResponseDto(HttpStatus.CREATED, String(`Account has been created successfuly.`));
             }
 

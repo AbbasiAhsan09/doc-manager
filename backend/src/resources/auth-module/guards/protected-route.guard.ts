@@ -18,7 +18,7 @@ export class ProtectedRouteGuard extends JwtAuthGuard implements CanActivate {
         if(!jwtActive) return false;
         
         const request = context.switchToHttp().getRequest();
-        const user = request?.user?.dataValues;
+        const user = request?.user;
 
         if(!user) return false;
         

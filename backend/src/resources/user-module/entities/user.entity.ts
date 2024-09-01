@@ -1,7 +1,8 @@
-import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Model, Table, UpdatedAt } from "sequelize-typescript";
+import { BelongsTo, Column, CreatedAt, DataType, DeletedAt, ForeignKey, HasOne, Model, Table, UpdatedAt } from "sequelize-typescript";
 import { ECommonStatus } from "src/shared/@enum/common-status.enum";
 import { EUserTypes } from "src/shared/@enum/user-type.enum";
 import { Role } from "../roles-module/entities/role.entity";
+import { ClinicUser } from "./clinic-user.entity";
 
 @Table({
     tableName  :'users',
@@ -101,8 +102,20 @@ export class User extends Model<User> {
     })
     updatedAt: Date; 
 
+
+    @DeletedAt
+    @Column({
+        type : DataType.DATE,
+        allowNull : true
+    })
+    deletedAt: Date; 
+
     // Relations
 
     @BelongsTo(() => Role)
-    role : Role
+    role : Role;
+
+
+    @HasOne(() => ClinicUser,{foreignKey : 'userId'})
+    clinicUser : ClinicUser
 }

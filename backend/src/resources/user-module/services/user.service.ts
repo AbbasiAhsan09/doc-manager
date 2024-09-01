@@ -6,12 +6,15 @@ import { GeneralResponseDto } from "src/shared/dto/general-response.dto";
 import { Role } from "../roles-module/entities/role.entity";
 import * as bcrypt from 'bcrypt'
 import { Op } from "sequelize";
+import { ClinicUser } from "../entities/clinic-user.entity";
+import { Clinic } from "@src/resources/clinic-module/entities/clinic.entity";
 
 @Injectable()
 export class UserService {
     constructor(
         @Inject(User.name) private readonly userModel : typeof User,
-        private readonly roleSErvice : RoleService
+        private readonly roleSErvice : RoleService,
+        @Inject(ClinicUser.name) private readonly clinicUserModel  : typeof ClinicUser
     ){}
 
     async create(body : CreateUserDto){
@@ -44,12 +47,20 @@ export class UserService {
     async findOneByUsernameOrEmail({email , username} : {email ?: string, username? : string}){
         try {
             
-            const check = await this.userModel.findOne({where : {
+            const check = await this.userModel.findOne({
+                where : {
                 [Op.or] : {
                     email,
                     username
+                },
+            },
+            include : [
+                {
+                    model : ClinicUser,
+                    include : [Clinic]
                 }
-            }})
+            ]
+        })
 
             if(!check) return false;
 
@@ -69,6 +80,19 @@ export class UserService {
 
             return await user.destroy({force : true});
             
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async createUserClinicAssociation(userId : number, clinicId : number) {
+        try {
+
+            const check = await this.clinicUserModel.findOne({where :  {userId, clinicId}});
+
+            if(check) return check;
+
+            return await this.clinicUserModel.create({userId, clinicId});
         } catch (err) {
             throw new Error(err);
         }
