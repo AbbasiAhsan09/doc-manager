@@ -57,7 +57,7 @@ export class ServiceChargeTypeService {
 
     async findAll(){
         try {
-            
+            return await this.serviceChargeTypeModel.findAll();
         } catch (err) {
             throw new Error(err);
         }
@@ -70,6 +70,23 @@ export class ServiceChargeTypeService {
             if(!check) return new GeneralResponseDto(HttpStatus.NOT_FOUND,String(`Service Charge Type not found with ID : ${id}`));
 
             return check;
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+
+    async destroy(id : number){
+        try {
+            const type = await this.serviceChargeTypeModel.findByPk(id);
+
+            if(!type) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Invalid ID : ${id}! Please use valid ID to delete charge type`))
+
+            await type.destroy();
+
+            return new GeneralResponseDto(HttpStatus.OK, String(`Service charge type deleted successfuly.`));
+
 
         } catch (err) {
             throw new Error(err);

@@ -24,3 +24,5 @@ export class CreateServiceGroupFullDto extends CreateServiceGroupDto{
     @IsNumber()
     clinicId : number;
 }
+
+
