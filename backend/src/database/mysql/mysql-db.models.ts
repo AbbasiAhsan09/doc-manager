@@ -1,3 +1,4 @@
+import { DoctorInvite } from "@src/resources/clinic-module/entities/doctor-invites.entity";
 import { DoctorType } from "@src/resources/doctor-type-module/entities/doctor-type.entity";
 import { Service } from "@src/resources/services-module/entities/service.entity";
 import { ServiceChargeType } from "@src/resources/services-module/service-charge-type-module/entities/service-charge-type.entity";
@@ -17,5 +18,6 @@ export const mysqlDBModels = [
     Service,
     ClinicUser,
     Sepciality,
-    DoctorType
+    DoctorType,
+    DoctorInvite
 ];
