@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt'
 import { Op } from "sequelize";
 import { ClinicUser } from "../entities/clinic-user.entity";
 import { Clinic } from "@src/resources/clinic-module/entities/clinic.entity";
+import { EUserTypes } from "@src/shared/@enum/user-type.enum";
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,7 @@ export class UserService {
         try {
 
             const { roleId, userType, password, email, username } = body;
+           if(userType !== EUserTypes.DOCTOR){
             const role = await this.roleSErvice.findOne(+roleId);
 
             // Check if role found or not
@@ -29,6 +31,7 @@ export class UserService {
             // Check role type and usertype is same
             if(role instanceof Role && role?.type !== userType) return new GeneralResponseDto(HttpStatus.BAD_REQUEST, String(`Invalid role type for the user.`));
 
+           }
             // Check if user already exist
             const checkExistingUser = await this.findOneByUsernameOrEmail({email,username});
             if(checkExistingUser) return new GeneralResponseDto(HttpStatus.CONFLICT, String(`User with this email or username already exist.`));
@@ -37,7 +40,7 @@ export class UserService {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            return await this.userModel.create({...body, password : hashedPassword})
+            return await this.userModel.create({...body, password : hashedPassword, roleId : roleId || null})
             
         } catch (err) {
             throw new Error(err);

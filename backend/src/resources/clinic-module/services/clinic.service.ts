@@ -108,5 +108,13 @@ export class ClinicService {
         }
     }
 
+    async findOne(id : number){
+        try {
+            return await this.clinicModel.findByPk(id);
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
  
 }

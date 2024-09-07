@@ -79,7 +79,7 @@ module.exports = {
       },
       roleId :  {
         type : Sequelize.INTEGER,
-        allowNull : false,
+        allowNull : true,
         references : {
           model  :'roles',
           key : 'id',
