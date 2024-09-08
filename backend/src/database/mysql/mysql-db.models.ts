@@ -1,4 +1,5 @@
 import { DoctorInvite } from "@src/resources/clinic-module/entities/doctor-invites.entity";
+import { DoctorDefaultProfile } from "@src/resources/doctor-module/entities/doctor-default-profile.entity";
 import { DoctorType } from "@src/resources/doctor-type-module/entities/doctor-type.entity";
 import { Service } from "@src/resources/services-module/entities/service.entity";
 import { ServiceChargeType } from "@src/resources/services-module/service-charge-type-module/entities/service-charge-type.entity";
@@ -19,5 +20,6 @@ export const mysqlDBModels = [
     ClinicUser,
     Sepciality,
     DoctorType,
-    DoctorInvite
+    DoctorInvite,
+    DoctorDefaultProfile
 ];

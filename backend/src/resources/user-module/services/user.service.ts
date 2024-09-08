@@ -100,4 +100,12 @@ export class UserService {
             throw new Error(err);
         }
     }
+
+    async findOneByPK(id : number){
+        try {
+            return await this.userModel.findOne({where : {id}});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
 }

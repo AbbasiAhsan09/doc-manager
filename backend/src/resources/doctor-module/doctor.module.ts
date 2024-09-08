@@ -5,17 +5,21 @@ import { clinicProviders } from "../clinic-module/porviders/clinic.providers";
 import { ClinicModule } from "../clinic-module/clinic.module";
 import { MailModule } from "@src/shared/modules/mail/mail.module";
 import { UserModule } from "../user-module/user.module";
+import { doctorProviders } from "./providers/doctor.providers";
+import { DoctorTypeModule } from "../doctor-type-module/speciality.module";
 
 @Module({
     controllers : [DoctorController],
     imports : [
         UserModule,
         ClinicModule,
-        MailModule
+        MailModule,
+        DoctorTypeModule
     ],
     providers : [
         DoctorService,
-        ...clinicProviders
+        ...clinicProviders,
+        ...doctorProviders
     ],
     exports : [
         DoctorService

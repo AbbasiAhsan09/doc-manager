@@ -9,6 +9,12 @@ import { ClinicService } from "@src/resources/clinic-module/services/clinic.serv
 import { MailService } from "@src/shared/modules/mail/mail.service";
 import { User } from "@src/resources/user-module/entities/user.entity";
 import { EUserTypes } from "@src/shared/@enum/user-type.enum";
+import { AcceptExistingDoctorInvite } from "../dto/accept-existing-doctor-invite.dto";
+import { DoctorDefaultProfile } from "../entities/doctor-default-profile.entity";
+import { CreateDoctorDefaultProfileServiceDto } from "../dto/create-doctor-default-profile.dto";
+import { DoctorTypeService } from "@src/resources/doctor-type-module/services/doctor-type.service";
+import { DoctorClinicProfile } from "../entities/doctor-clinic-profile.entity";
+import { CreateDoctorClinicProfileServiceDto } from "../dto/create-doctor-clinic-profile.dto";
 
 @Injectable()
 export class DoctorService {
@@ -16,7 +22,11 @@ export class DoctorService {
         private readonly userService : UserService,
         private readonly clinicService : ClinicService,
         private readonly mailService : MailService,
+        private readonly doctorTypeService : DoctorTypeService,
         @Inject(DoctorInvite.name) private readonly doctorInviteModel : typeof DoctorInvite,
+        @Inject(DoctorDefaultProfile.name) private readonly doctorDefaultProfileModel : typeof DoctorDefaultProfile,
+        @Inject(DoctorClinicProfile.name) private readonly doctorClinicProfileModel : typeof DoctorClinicProfile
+
         
 
     ){}
@@ -25,12 +35,12 @@ export class DoctorService {
         try {
             
             const {token, email,clinicId ,...userData} = body;
-            console.log(body);
+         
             const check = await this.doctorInviteModel.findOne({
                 where : {email, clinicId, acceptedAt : null, status : ECommonStatus.PENDING}
             });
 
-            console.log("passed 1");
+          
 
             if(!check) return new GeneralResponseDto(HttpStatus.UNAUTHORIZED, String(`This invitation has been expired.`));
 
@@ -39,7 +49,7 @@ export class DoctorService {
             if(!compare) return new GeneralResponseDto(HttpStatus.UNAUTHORIZED, String(`Invitation token is not valid.`));
 
             const user = await this.userService.create({...userData, email});
-            console.log("passed 2");
+            
 
             if((user instanceof GeneralResponseDto && user.status === HttpStatus.CONFLICT) || (user instanceof User && user.id)){
                 const existedUser = await this.userService.findOneByUsernameOrEmail({email,username :email});
@@ -59,6 +69,7 @@ export class DoctorService {
                         );
                     await this.userService.createUserClinicAssociation(existedUser.id,clinicId);
                     await this.sendInvitationAcceptedEmailToClinic(clinicId, existedUser);
+                    await this.cloneProfileToClinicProfile(existedUser.id,clinicId)
                 }
 
                 return new GeneralResponseDto(HttpStatus.OK, String(`Invitation has been accepted`));
@@ -86,6 +97,151 @@ export class DoctorService {
                 to : [{name : clinic.name, email : clinic.email}],
                 text : `Invitation accepted by doctor ${doctor.firstName} ${doctor.lastName}`
             });
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+
+    async acceptExistingDoctorInvite(body : AcceptExistingDoctorInvite){
+        try {
+            const {inviteId, token} = body;
+
+            const invite = await this.doctorInviteModel.findOne({
+                where : {
+                    id : +inviteId,
+                    acceptedAt : null
+                }
+            });
+
+            if(!invite) return new GeneralResponseDto(HttpStatus.UNAUTHORIZED, String(`This invitation has been expired.`));
+
+            const compare = await bcrypt.compare(token, invite.token);
+
+            if(!compare) return new GeneralResponseDto(HttpStatus.UNAUTHORIZED, String(`Invitation token is not valid.`));
+
+            const existedUser = await this.userService.findOneByUsernameOrEmail({email : invite.email,username :invite.email});
+            
+            if(existedUser && existedUser.userType !== EUserTypes.DOCTOR) return new GeneralResponseDto(HttpStatus.CONFLICT, String(`User already existed with type : ${existedUser.userType} please contact support.`));
+            
+            if(existedUser){
+                await invite.update(
+                    {
+                        acceptedAt : new Date(),
+                        status : ECommonStatus.APPROVED
+                    }
+                    );
+                await this.userService.createUserClinicAssociation(existedUser.id,invite.clinicId);
+                await this.sendInvitationAcceptedEmailToClinic(invite.clinicId, existedUser);
+                await this.cloneProfileToClinicProfile(existedUser.id,invite.clinicId)
+
+                return new GeneralResponseDto(HttpStatus.OK, String(`Invitation has been accepted`));
+            }
+
+            return new GeneralResponseDto(HttpStatus.BAD_GATEWAY, String(`Oops! Something went wrong please contact support.`));
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+
+    async createOrUpdateDoctorDefaultProfile(body : CreateDoctorDefaultProfileServiceDto){
+        try {
+            
+            const {doctorId, doctorType} = body;
+
+            const user = await this.userService.findOneByPK(doctorId);
+
+            if(!user) return new GeneralResponseDto(HttpStatus.BAD_REQUEST, String(`Bad request! Account does not exist.`));
+
+            const doctorTypeObj = await this.doctorTypeService.findOne(doctorType);
+
+            if(!doctorTypeObj) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Bad request! Invalid doctor type.`));
+
+            const profile = await this.doctorDefaultProfileModel.findOne({where : {doctorId}});
+
+            if(profile){
+                await profile.update(body);
+                return new GeneralResponseDto(HttpStatus.OK, String(`Default profile updated successfully.`))
+            }
+
+            await this.doctorDefaultProfileModel.create({...body});
+            return new GeneralResponseDto(HttpStatus.OK, String(`Default profile updated successfully.`))
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+
+    async cloneProfileToClinicProfile(doctorId : number, clinicId : number){
+        try {
+            
+            const profile = await this.doctorDefaultProfileModel.findOne({
+                where  : {doctorId}
+            });
+
+            if(!profile) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Default profile is not configured.`));
+
+            const {eCheckup, eCheckupFee,id, offDays, ...clinicProfileData} = profile;
+
+            const checkClinicProfile = await this.doctorClinicProfileModel.findOne({
+                where:{
+                    doctorId,
+                    clinicId
+                }
+            });
+
+            if(checkClinicProfile) return new GeneralResponseDto(HttpStatus.CONFLICT, String(`Clinic profile is already existed.`))
+
+            await this.doctorClinicProfileModel.create({
+                clinicId,
+                doctorId,
+                appointmentNotificationEmail : profile.appointmentNotificationEmail,
+                appointmentNotificationPhone : profile.appointmentNotificationPhone,
+                onlineAppointment : profile.onlineAppointment,
+                preOnlineAppointmentFeeCharged : profile.preOnlineAppointmentFeeCharged,
+                onlineAppointmentFee : profile.onlineAppointmentFee,
+                specialization: profile.specialization,
+                doctorType : profile.doctorType
+            })
+
+            return new GeneralResponseDto(HttpStatus.OK, String(`Default profile cloned to clinic profile.`));
+
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async createOrUpdateDoctorClinicProfile(body : CreateDoctorClinicProfileServiceDto){
+        try {
+            
+            const {doctorId, doctorType,clinicId} = body;
+
+            const user = await this.userService.findOneByPK(doctorId);
+
+            if(!user) return new GeneralResponseDto(HttpStatus.BAD_REQUEST, String(`Bad request! Account does not exist.`));
+
+            const doctorTypeObj = await this.doctorTypeService.findOne(doctorType);
+
+            if(!doctorTypeObj) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Bad request! Invalid doctor type.`));
+
+            const clinic = await this.clinicService.findOne(clinicId);
+
+            if(!clinic) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Bad request! Invalid clinic.`));
+
+            const profile = await this.doctorClinicProfileModel.findOne({where : {doctorId, clinicId}});
+
+            if(profile){
+                await profile.update(body);
+                return new GeneralResponseDto(HttpStatus.OK, String(`Clinic profile updated successfully.`))
+            }
+
+            await this.doctorClinicProfileModel.create({...body});
+            return new GeneralResponseDto(HttpStatus.OK, String(`Clinic profile updated successfully.`))
+
         } catch (err) {
             throw new Error(err);
         }

@@ -90,7 +90,9 @@ export class ClinicService {
             const mail = await this.mailService.sendMail({
                 subject : `You are invited by ${clinic.name}`,
                 to : [{email}],
-                text : `Token : ${token}`
+                text : `${message},
+                Token : ${token}, Clinic ID : ${clinic.id}
+                `
             })
 
             if(mail){
