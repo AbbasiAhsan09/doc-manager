@@ -7,6 +7,7 @@ import { MailModule } from "@src/shared/modules/mail/mail.module";
 import { UserModule } from "../user-module/user.module";
 import { doctorProviders } from "./providers/doctor.providers";
 import { DoctorTypeModule } from "../doctor-type-module/speciality.module";
+import { PaginationService } from "@src/shared/services/pagination.service";
 
 @Module({
     controllers : [DoctorController],
@@ -18,6 +19,7 @@ import { DoctorTypeModule } from "../doctor-type-module/speciality.module";
     ],
     providers : [
         DoctorService,
+        PaginationService,
         ...clinicProviders,
         ...doctorProviders
     ],

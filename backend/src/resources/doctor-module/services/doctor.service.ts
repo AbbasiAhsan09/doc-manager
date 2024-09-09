@@ -15,6 +15,11 @@ import { CreateDoctorDefaultProfileServiceDto } from "../dto/create-doctor-defau
 import { DoctorTypeService } from "@src/resources/doctor-type-module/services/doctor-type.service";
 import { DoctorClinicProfile } from "../entities/doctor-clinic-profile.entity";
 import { CreateDoctorClinicProfileServiceDto } from "../dto/create-doctor-clinic-profile.dto";
+import { Op } from "sequelize";
+import { DoctorType } from "@src/resources/doctor-type-module/entities/doctor-type.entity";
+import { GetClinicDoctorRequestDto } from "../dto/get-clinic-doctor-request.dto";
+import { PaginationService } from "@src/shared/services/pagination.service";
+import { PaginationMetaDto, PaginationResponseDto } from "@src/shared/dto/pagination.dto";
 
 @Injectable()
 export class DoctorService {
@@ -23,6 +28,7 @@ export class DoctorService {
         private readonly clinicService : ClinicService,
         private readonly mailService : MailService,
         private readonly doctorTypeService : DoctorTypeService,
+        private readonly paginationService :  PaginationService,
         @Inject(DoctorInvite.name) private readonly doctorInviteModel : typeof DoctorInvite,
         @Inject(DoctorDefaultProfile.name) private readonly doctorDefaultProfileModel : typeof DoctorDefaultProfile,
         @Inject(DoctorClinicProfile.name) private readonly doctorClinicProfileModel : typeof DoctorClinicProfile
@@ -58,7 +64,8 @@ export class DoctorService {
                     await this.doctorInviteModel.update(
                         {
                             acceptedAt : new Date(),
-                            status : ECommonStatus.APPROVED
+                            status : ECommonStatus.APPROVED,
+                            doctorId : existedUser.id
                         },
                         {
                             where : {
@@ -128,7 +135,8 @@ export class DoctorService {
                 await invite.update(
                     {
                         acceptedAt : new Date(),
-                        status : ECommonStatus.APPROVED
+                        status : ECommonStatus.APPROVED,
+                        doctorId : existedUser.id
                     }
                     );
                 await this.userService.createUserClinicAssociation(existedUser.id,invite.clinicId);
@@ -232,6 +240,21 @@ export class DoctorService {
 
             if(!clinic) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Bad request! Invalid clinic.`));
 
+            const connection = await this.doctorInviteModel.findOne({
+                where : {
+                    clinicId,
+                    [Op.or] : {
+                        doctorId,
+                        email : user.email,
+                    },
+                    [Op.not] :{
+                        acceptedAt : null
+                    } 
+                }
+            });
+
+            if(!connection) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`You are not connected to the clinic ID : ${clinicId}`));
+
             const profile = await this.doctorClinicProfileModel.findOne({where : {doctorId, clinicId}});
 
             if(profile){
@@ -247,5 +270,109 @@ export class DoctorService {
         }
     }
 
+
+    async getDefaultProfile(doctorId : number){
+        try {
+            
+            return await this.doctorDefaultProfileModel.findOne({
+                where  : { doctorId }
+            })
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+
+    async getClinicProfile(doctorId : number, clinicId:number){
+        try {
+            
+            return await this.doctorClinicProfileModel.findOne({
+                where :{
+                    clinicId,
+                    doctorId
+                }
+            });
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async getClinicProfiles(doctorId : number){
+        try {
+            
+            return await this.doctorClinicProfileModel.findAll({
+                where : {
+                    doctorId
+                }
+            })
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    async getClinicDoctors(clinicId : number, params  : GetClinicDoctorRequestDto){
+        try {
+            const {search} = params
+            const {limit,offset,page} = this.paginationService.getPaginationParams(params.page, params.limit);
+            let where : any = {clinicId};
+
+            if(search){
+                where = {
+                    ...where,
+                    [Op.or] : {
+                        specialization : {
+                            [Op.like] : `%${search}%`
+                        },
+                        appointmentNotificationEmail : {
+                            [Op.like] : `%${search}%`
+                        },
+                        appointmentNotificationPhone : {
+                            [Op.like] : `%${search}%`
+                        },
+                        '$users.firstName' : {
+                            [Op.like] : `%${search}%`
+                        },
+                        '$users.lastName' : {
+                            [Op.like] : `%${search}%`
+                        },
+                        '$users.email' : {
+                            [Op.like] : `%${search}%`
+                        },
+                        '$users.username' : {
+                            [Op.like] : `%${search}%`
+                        },
+                        '$users.nickName' : {
+                            [Op.like] : `%${search}%`
+                        },
+                    }
+                }
+            }
+
+
+            const {rows, count} = await this.doctorClinicProfileModel.findAndCountAll({
+                distinct : true,
+                where : {
+                    ...where
+                },
+                include : [
+                    {
+                        model : User
+                    },
+                    {
+                        model : DoctorType
+                    }
+                ]
+            });
+
+            const meta = new PaginationMetaDto(page, limit, count);
+            return new PaginationResponseDto(rows, meta)
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
     
 }

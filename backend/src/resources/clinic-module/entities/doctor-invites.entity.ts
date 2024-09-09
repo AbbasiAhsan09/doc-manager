@@ -1,6 +1,7 @@
-import { AutoIncrement, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
 import { Clinic } from "./clinic.entity";
 import { ECommonStatus } from "@src/shared/@enum/common-status.enum";
+import { User } from "@src/resources/user-module/entities/user.entity";
 
 @Table({
     tableName : 'doctor_invites',
@@ -56,6 +57,13 @@ export class DoctorInvite extends Model<DoctorInvite>{
     })
     acceptedAt : Date
 
+    @ForeignKey(() => User)
+    @Column({
+        allowNull : true,
+        type : DataType.INTEGER,
+    })
+    doctorId : number
+
     @CreatedAt
     @Column({
         type : DataType.DATE,
@@ -77,4 +85,9 @@ export class DoctorInvite extends Model<DoctorInvite>{
         allowNull : true
     })
     deletedAt: Date; 
+
+
+    // Realtions
+    @BelongsTo(() => User)
+    doctor : User
 }

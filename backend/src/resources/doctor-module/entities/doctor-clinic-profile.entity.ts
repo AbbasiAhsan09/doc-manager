@@ -1,7 +1,7 @@
 import { Clinic } from "@src/resources/clinic-module/entities/clinic.entity";
 import { DoctorType } from "@src/resources/doctor-type-module/entities/doctor-type.entity";
 import { User } from "@src/resources/user-module/entities/user.entity";
-import { AutoIncrement, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
 
 @Table({
     tableName : 'doctor_clinic_profiles',
@@ -96,4 +96,15 @@ export class DoctorClinicProfile extends Model<DoctorClinicProfile>{
         allowNull : true
     })
     deletedAt: Date; 
+
+
+    // Relations
+    @BelongsTo(() => User)
+    doctor : User;
+
+    @BelongsTo(() => DoctorType)
+    type : DoctorType;
+
+    @BelongsTo(() => Clinic)
+    clinic : Clinic;
 }
