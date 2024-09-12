@@ -118,5 +118,10 @@ export class ClinicService {
         }
     }
 
+
+    async findClinicUser(clinicId : number, userId : number){
+        return await this.userService.findClinicUser(clinicId,userId);
+    }
+
  
 }

@@ -2,6 +2,7 @@ import { DoctorInvite } from "@src/resources/clinic-module/entities/doctor-invit
 import { DoctorClinicProfile } from "@src/resources/doctor-module/entities/doctor-clinic-profile.entity";
 import { DoctorDefaultProfile } from "@src/resources/doctor-module/entities/doctor-default-profile.entity";
 import { DoctorType } from "@src/resources/doctor-type-module/entities/doctor-type.entity";
+import { Patient } from "@src/resources/patient-module/entities/patient.entity";
 import { Service } from "@src/resources/services-module/entities/service.entity";
 import { ServiceChargeType } from "@src/resources/services-module/service-charge-type-module/entities/service-charge-type.entity";
 import { ServiceGroup } from "@src/resources/services-module/service-group-module/entities/service-group.entity";
@@ -23,5 +24,6 @@ export const mysqlDBModels = [
     DoctorType,
     DoctorInvite,
     DoctorDefaultProfile,
-    DoctorClinicProfile
+    DoctorClinicProfile,
+    Patient
 ];

@@ -108,4 +108,17 @@ export class UserService {
             throw new Error(err);
         }
     }
+
+    async findClinicUser(clinicId : number, userId:number){
+        try {
+            const association = await this.clinicUserModel.findOne({where : {clinicId, userId}});
+
+            if(!association) return false;
+
+            return await this.findOneByPK(userId);
+
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
 }

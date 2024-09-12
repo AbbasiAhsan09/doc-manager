@@ -14,6 +14,28 @@ const maritalStatusOptions = [
   "minor"
 ];
 
+const relationships = [
+  "father",
+  "mother",
+  "son",
+  "daughter",
+  "husband",
+  "wife",
+  "brother",
+  "sister",
+  "grandfather",
+  "grandmother",
+  "grandson",
+  "granddaughter",
+  "uncle",
+  "aunt",
+  "nephew",
+  "niece",
+  "cousin",
+  "other"
+];
+
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -33,7 +55,6 @@ module.exports = {
         },
         mrNumber: {
           type : Sequelize.STRING,
-          unique : true,
           allowNull : true
         },
         firstName: {
@@ -47,6 +68,10 @@ module.exports = {
         lastName: {
           type: Sequelize.STRING,
           allowNull: false,
+        },
+        email: {
+          type: Sequelize.STRING,
+          allowNull: true,
         },
         gender: {
           type: Sequelize.ENUM("male","female","other"),
@@ -63,7 +88,11 @@ module.exports = {
         },
         guardianName: {
           type: Sequelize.STRING,
-          allowNull: true,
+          allowNull: false,
+        },
+        guardianRelation: {
+          type: Sequelize.ENUM(relationships),
+          allowNull: false,
         },
         contact: {
           type: Sequelize.STRING,
@@ -114,7 +143,7 @@ module.exports = {
             key : 'id'
           } 
         },
-        firstEntryFrom : {
+        source : {
           type  :Sequelize.ENUM("opd","epd","other"),
           allowNull : false,
           defaultValue : 'opd'
