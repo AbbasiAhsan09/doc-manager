@@ -35,6 +35,55 @@ module.exports = {
       appointmentNumber : {
         type : Sequelize.INTEGER,
         allowNull : true,
+      },
+      appointmentDate : {
+        type : Sequelize.DATEONLY,
+        allowNull  : true
+      },
+      source : {
+        type : Sequelize.ENUM('online','clinic','other'),
+        defaultValue : 'clinic',
+      },
+      eCheckup : {
+        type : Sequelize.BOOLEAN,
+        allowNull : true
+      },
+      confirmed : {
+        type  : Sequelize.BOOLEAN,
+        allowNull : true
+      },
+      createdById : {
+        type : Sequelize.INTEGER,
+        allowNull : true,
+        references : {
+          model : 'users',
+          key : 'id'
+        }
+      },
+      cancelledById :{
+        type : Sequelize.INTEGER,
+        allowNull : true,
+        references : {
+          model : 'users',
+          key : 'id'
+        }
+      },
+      cancelledAt : {
+         type : Sequelize.DATE,
+         allowNull : true,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      deletedAt : {
+        type : Sequelize.DATE,
+        allowNull : true,
       }
     });
   },
