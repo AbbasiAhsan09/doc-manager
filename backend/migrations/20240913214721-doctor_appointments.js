@@ -32,6 +32,14 @@ module.exports = {
           key : 'id'
         }
       },
+      clinicId : {
+        type  :Sequelize.INTEGER,
+        allowNull : false,
+        references : {
+          model : 'clinics',
+          key : 'id'
+        }
+      },
       appointmentNumber : {
         type : Sequelize.INTEGER,
         allowNull : true,

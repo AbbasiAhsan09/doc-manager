@@ -1,7 +1,8 @@
+import { Clinic } from "@src/resources/clinic-module/entities/clinic.entity";
 import { Patient } from "@src/resources/patient-module/entities/patient.entity";
 import { User } from "@src/resources/user-module/entities/user.entity";
 import { EAppointmentSource } from "@src/shared/@enum/appointment-source.enum";
-import { Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, Table, UpdatedAt } from "sequelize-typescript";
+import { BelongsTo, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, Table, UpdatedAt } from "sequelize-typescript";
 
 @Table({
     tableName : 'doctor_appointments',
@@ -30,6 +31,14 @@ export class DoctorAppointment extends Model<DoctorAppointment>{
         allowNull : false
     })
     doctorId : number;
+
+
+    @ForeignKey(() => Clinic)
+    @Column({
+        type : DataType.INTEGER,
+        allowNull : false
+    })
+    clinicId : number;
 
     @Column({
         type : DataType.INTEGER,
@@ -112,5 +121,9 @@ export class DoctorAppointment extends Model<DoctorAppointment>{
     })
     deletedAt: Date; 
 
+
+
+    @BelongsTo(() => Clinic)
+    clinic : Clinic
 
 }
