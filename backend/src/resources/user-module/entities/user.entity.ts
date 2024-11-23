@@ -80,6 +80,12 @@ export class User extends Model<User> {
     })
     image : string;
 
+    @Column({
+        type : DataType.STRING,
+        allowNull : true     
+    })
+    contact : string;
+
     @ForeignKey(() => Role)
     @Column({
         type : DataType.INTEGER,

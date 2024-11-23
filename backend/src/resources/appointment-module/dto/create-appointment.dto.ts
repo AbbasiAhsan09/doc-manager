@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { EAppointmentSource } from "@src/shared/@enum/appointment-source.enum";
 import { IsDate, IsNumber, IsOptional, IsString } from "class-validator";
 
-export class createAppointmentDto {
+export class CreateAppointmentDto {
     @ApiProperty({required : true})
     @IsNumber()
     patientId : number;
@@ -11,16 +11,16 @@ export class createAppointmentDto {
     @IsNumber()
     doctorId : number;
 
-    @ApiProperty({required : true})
+    @ApiProperty({required : false})
     @IsNumber()
+    @IsOptional()
     clinicId : number;
 
-    @ApiProperty({required : true})
-    @IsString()
-    appointmentNumber : string;
+    // @ApiProperty({required : true})
+    // @IsString()
+    // appointmentNumber : string;
 
     @ApiProperty({required : true})
-    @IsDate()
     appointmentDate : Date;
 
     @ApiProperty({required : true, enum : EAppointmentSource})
@@ -37,8 +37,12 @@ export class createAppointmentDto {
     cancelledById ? : number;
     
     @ApiProperty({required : false})
-    @IsDate()
     @IsOptional()
     cancelledAt ? : Date;
+
+
+    @ApiProperty({required : false})
+    @IsOptional()
+    createdById ? : number;
 
 }

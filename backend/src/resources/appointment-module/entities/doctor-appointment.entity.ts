@@ -87,7 +87,7 @@ export class DoctorAppointment extends Model<DoctorAppointment>{
     @ForeignKey(() => User)
     @Column({
         type : DataType.INTEGER,
-        allowNull : false
+        allowNull : true
     })
     cancelledById : number;
 

@@ -59,15 +59,15 @@ export class PatientService {
     async generateNewMRN(clinicId: number) {
         try {
 
-            const leadingZero = 8;
+            const leadingZero = 2;
             const clinic = await this.clinicService.findOne(clinicId);
 
             if (!clinic) return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Invalid clinic ID : ${clinicId} to generate new MRN`))
 
-            const date = new Date();
-            const [day, month, year] = [date.getDate(), (date.getMonth() + 1), (date.getFullYear() % 100)];
+            // const date = new Date();
+            // const [day, month, year] = [date.getDate(), (date.getMonth() + 1), (date.getFullYear() % 100)];
 
-            let MRN: string = "MRN" + `${year}${month}${day}`;
+            let MRN: string = "MRN";
 
             const lastPatient = await this.patientModel.findOne({
                 where: {
@@ -90,5 +90,10 @@ export class PatientService {
         } catch (err) {
             throw new Error(err);
         }
+    }
+
+
+    async findOne(where = {}){
+        return await this.patientModel.findOne(where);
     }
 }

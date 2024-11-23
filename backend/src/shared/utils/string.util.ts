@@ -7,4 +7,8 @@ export function generateRandomString(length : number) {
                                              charactersLength));
     }
     return result;
-  }
+}
+
+export function addLeadingZeros(zeros:number, num:number) {
+  return num.toString().padStart(zeros+1, '0');
+}

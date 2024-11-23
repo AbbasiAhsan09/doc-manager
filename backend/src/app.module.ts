@@ -12,6 +12,7 @@ import { SpecialityModule } from './resources/speciality-module/speciality.modul
 import { DoctorTypeModule } from './resources/doctor-type-module/speciality.module';
 import { DoctorModule } from './resources/doctor-module/doctor.module';
 import { PatientModule } from './resources/patient-module/patient.module';
+import { AppointmentModule } from './resources/appointment-module/appointment.module';
 
 const env = `${process.env.NODE_ENV ? `./config/env/.${process.env.NODE_ENV}.env` : './config/env/.env' }`
 
@@ -30,7 +31,9 @@ const env = `${process.env.NODE_ENV ? `./config/env/.${process.env.NODE_ENV}.env
   SpecialityModule,
   DoctorTypeModule,
   DoctorModule,
-  PatientModule
+  PatientModule,
+  AppointmentModule,
+  
 ],
   controllers: [AppController],
   providers: [AppService],

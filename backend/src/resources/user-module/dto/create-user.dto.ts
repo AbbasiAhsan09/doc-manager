@@ -40,6 +40,11 @@ export class CreateUserDto {
     @IsOptional()
     image? : string;
 
+    @ApiProperty({required : false})
+    @IsString()
+    @IsOptional()
+    contact? : string;
+
     @ApiProperty({required : true})
     @IsNumber()
     @IsOptional()

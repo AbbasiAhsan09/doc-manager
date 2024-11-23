@@ -63,7 +63,7 @@ export class UserService {
                     include : [Clinic]
                 }
             ]
-        })
+            });
 
             if(!check) return false;
 
@@ -120,5 +120,9 @@ export class UserService {
         } catch (err) {
             throw new Error(err);
         }
+    }
+
+    async findOne(where = {}){
+        return await this.userModel.findOne(where);
     }
 }

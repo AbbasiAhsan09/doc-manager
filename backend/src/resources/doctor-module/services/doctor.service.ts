@@ -373,6 +373,5 @@ export class DoctorService {
         } catch (err) {
             throw new Error(err);
         }
-    }
-    
+    }    
 }
