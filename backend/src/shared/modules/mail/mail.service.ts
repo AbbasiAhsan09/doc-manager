@@ -43,7 +43,6 @@ export class MailService {
               attachment: attachments && attachments.length > 0 ? attachments : null!
             });
 
-            console.log({res})
       
             return true
           } catch (error) {

@@ -10,6 +10,8 @@ import { DoctorService } from "@src/resources/doctor-module/services/doctor.serv
 import { ClinicService } from "@src/resources/clinic-module/services/clinic.service";
 import { addLeadingZeros } from "@src/shared/utils/string.util";
 import * as moment from "moment";
+import { MailService } from "@src/shared/modules/mail/mail.service";
+import { EAppointmentSource } from "@src/shared/@enum/appointment-source.enum";
 
 
 
@@ -21,7 +23,8 @@ export class AppointmentService {
         private readonly userService : UserService,
         private readonly mobileNotificationService : MobileNotificationService,
         private readonly doctorService : DoctorService,
-        private readonly clinicService  :ClinicService
+        private readonly clinicService  :ClinicService,
+        private readonly mailService : MailService
     ){}
 
     async createOnlineAppointment(){
@@ -65,7 +68,14 @@ export class AppointmentService {
                 return new GeneralResponseDto(HttpStatus.NOT_FOUND, String(`Doctor not found`));
             }
 
+            const doctorClinicProfile = await this.doctorService.getClinicProfile(doctor.id, clinicId);
 
+            if(!doctorClinicProfile.onlineAppointment && data.source === EAppointmentSource.Online){
+                
+                return new GeneralResponseDto(HttpStatus.BAD_REQUEST,String(`Doctor is not avaialble for online appointment at this location`));
+            }
+
+            
             
             const checkIfAlreadyExist = await this.doctorAppointmentModel.findOne({
                 where : {
@@ -122,7 +132,7 @@ export class AppointmentService {
                 })
             }
 
-            const doctorClinicProfile = await this.doctorService.getClinicProfile(doctor.id, clinicId);
+           
 
             // Notify Doctor
             if(doctorClinicProfile && doctorClinicProfile.appointmentNotificationPhone){
@@ -141,6 +151,18 @@ export class AppointmentService {
                 }
             }
 
+
+            // notification email to doctor
+            if(doctorClinicProfile.appointmentNotificationEmail){
+                await this.mailService.sendMail({
+                    subject : String(`${clinic.name} - Appointment confirmation`),
+                    to : [{email : doctorClinicProfile.appointmentNotificationEmail, name : String(doctor.firstName+" "+doctor.lastName)}],
+                    text : String(`You have confirmed appointmnet at ${clinic.name} on dated : ${moment(appointment.appointmentDate).format('M-D-Y')}. 
+                    Token no. ${addLeadingZeros(2,appointment.appointmentNumber)} Patient: ${patient.firstName +' '+patient.middleName+' '+ patient.lastName}`),
+                    attachments : [],
+                    from : ''
+                })
+            }
 
             return new GeneralResponseDto(HttpStatus.CREATED, String(`Appointment created`), appointment);
             
